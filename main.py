@@ -91,6 +91,7 @@ if __name__ == '__main__':
                 if 'submit' in MyText.split(' '):
                     print("submit")
                     submit_visit_slip()
+                    break
 
         except sr.RequestError as e:
             print("Could not request results; {0}".format(e))
