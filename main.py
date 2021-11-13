@@ -5,7 +5,21 @@
 import time
 from selenium import webdriver
 
+import speech_recognition as sr
+import pyttsx3
+
+# Initialize the recognizer
+r = sr.Recognizer()
+#initialize the browser
 driver = webdriver.Chrome('chromedriver')
+
+
+# Function to convert text to speech
+def SpeakText(command):
+    # Initialize the engine
+    engine = pyttsx3.init()
+    engine.say(command)
+    engine.runAndWait()
 
 
 def google_search_chromedriver():
@@ -30,7 +44,6 @@ def fill_input_box(form_input_text_name, form_input_text_speech_transcribed):
     input_text_element.send_keys(form_input_text_speech_transcribed)
 
 
-
 def submit_visit_slip():
     submit_button_element = driver.find_element(by='id', value='submit')
     submit_button_element.click()
@@ -41,8 +54,47 @@ def submit_visit_slip():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     open_patient_visit_slip()
-    form_input_text_name = 'history'
-    form_input_text_speech_transcribed = 'Smoker for last 5 years'
-    fill_input_box(form_input_text_name, form_input_text_speech_transcribed)
-    submit_visit_slip()
+    while (1):
+        # Exception handling to handle
+        # exceptions at the runtime
+        try:
+            # use the microphone as source for input.
+            with sr.Microphone() as source2:
+                # wait for a second to let the recognizer
+                # adjust the energy threshold based on
+                # the surrounding noise level
+                r.adjust_for_ambient_noise(source2, duration=0.2)
+                print('here')
+                # listens for the user's input
+                audio2 = r.listen(source2)
+
+                # Using google to recognize audio
+                MyText = r.recognize_google(audio2)
+                MyText = MyText.lower()
+
+                print(MyText)
+                if 'history' in MyText.split(' '):
+                    form_input_text_name = 'history'
+                    form_input_text_speech_transcribed = MyText
+                    print("his : " + MyText)  # call function to move to history
+                    fill_input_box(form_input_text_name, form_input_text_speech_transcribed)
+                if 'diagnosis' in MyText.split(' '):
+                    form_input_text_name = 'diagnosis'
+                    form_input_text_speech_transcribed = MyText
+                    print("diag : " + MyText)  # call function to move to diag
+                    fill_input_box(form_input_text_name, form_input_text_speech_transcribed)
+                if 'prescription' in MyText.split(' '):
+                    form_input_text_name = 'prescription'
+                    form_input_text_speech_transcribed = MyText
+                    print("pres : " + MyText)  # call function to move to pres
+                    fill_input_box(form_input_text_name, form_input_text_speech_transcribed)
+                if 'submit' in MyText.split(' '):
+                    print("submit")
+                    submit_visit_slip()
+
+        except sr.RequestError as e:
+            print("Could not request results; {0}".format(e))
+
+        except sr.UnknownValueError:
+            print("unknown error occured")
 
